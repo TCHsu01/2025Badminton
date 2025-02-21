@@ -9,6 +9,7 @@ df = pd.read_excel(file_path)
 
 # 初始化 Dash 應用程式
 app = dash.Dash(__name__)
+server = app.server
 
 app.layout = html.Div([
     html.H1("2025小地盃比賽查詢系統"),
