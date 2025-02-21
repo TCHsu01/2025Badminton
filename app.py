@@ -4,7 +4,7 @@ from dash.dependencies import Input, Output
 import pandas as pd
 
 # 讀取比賽數據
-file_path = "match.xlsx"
+file_path = "修正後的比賽資訊.xlsx"
 df = pd.read_excel(file_path)
 
 # 初始化 Dash 應用程式
@@ -72,14 +72,13 @@ def update_table(search_clicks, reset_clicks, time_filter, location_filter, grou
             filtered_df['裁判'].astype(str).str.contains(keyword_filter, case=False, na=False)
         ]
         # 設定醒目的顏色標示搜尋到的選手和裁判
-        style_conditions = []
-        for col in ['選手1', '選手2', '裁判']:
-            style_conditions.append(
-                {'if': {'column_id': col, 'filter_query': f'{{{col}}} contains "{keyword_filter}"'}, 'backgroundColor': '#FFDD57', 'color': 'black'}
-            )
+        style_conditions = [
+            {'if': {'filter_query': f'{{選手1}} contains "{keyword_filter}"'}, 'backgroundColor': '#FFDD57', 'color': 'black'},
+            {'if': {'filter_query': f'{{選手2}} contains "{keyword_filter}"'}, 'backgroundColor': '#FFDD57', 'color': 'black'},
+            {'if': {'filter_query': f'{{裁判}} contains "{keyword_filter}"'}, 'backgroundColor': '#FFDD57', 'color': 'black'}
+        ]
     
     return filtered_df.to_dict('records'), style_conditions
 
-server = app.server  # 讓 gunicorn 能識別 Flask 伺服器
-if __name__ == "__main__":
-    app.run_server(debug=True, port=10000)
+if __name__ == '__main__':
+    app.run_server(debug=True,port = 2025)
