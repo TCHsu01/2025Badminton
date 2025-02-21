@@ -26,7 +26,7 @@ def get_winner_styles(df):
     return style_conditions
 
 app.layout = html.Div([
-    html.H1("2025小地盃比賽查詢系統"),
+    html.H1("2025小地盃羽球賽事查詢系統"),
     
     # 篩選條件輸入框
     html.Label("開始時間"),
