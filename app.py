@@ -81,4 +81,4 @@ def update_table(search_clicks, reset_clicks, time_filter, location_filter, grou
     return filtered_df.to_dict('records'), style_conditions
 
 if __name__ == '__main__':
-    app.run_server(debug=True,port = 2025)
+    app.run_server(debug=True,port = 10000)
