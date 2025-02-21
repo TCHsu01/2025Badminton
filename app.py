@@ -4,7 +4,7 @@ from dash.dependencies import Input, Output
 import pandas as pd
 
 # 讀取比賽數據
-file_path = "修正後的比賽資訊.xlsx"
+file_path = "match.xlsx"
 df = pd.read_excel(file_path)
 
 # 初始化 Dash 應用程式
