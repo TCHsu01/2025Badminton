@@ -7,9 +7,23 @@ import pandas as pd
 file_path = "match.xlsx"
 df = pd.read_excel(file_path)
 
+# 確保備註欄位存在
+if '備註' not in df.columns:
+    df['備註'] = ""
+
 # 初始化 Dash 應用程式
 app = dash.Dash(__name__)
 server = app.server
+
+def get_winner_styles(df):
+    style_conditions = []
+    for index, row in df.iterrows():
+        if pd.notna(row['比分1']) and pd.notna(row['比分2']):
+            if row['比分1'] > row['比分2']:
+                style_conditions.append({'if': {'filter_query': f'{{賽程編號}} = {row["賽程編號"]}', 'column_id': '選手1'}, 'backgroundColor': '#A3E4A3', 'color': 'black'})
+            elif row['比分2'] > row['比分1']:
+                style_conditions.append({'if': {'filter_query': f'{{賽程編號}} = {row["賽程編號"]}', 'column_id': '選手2'}, 'backgroundColor': '#A3E4A3', 'color': 'black'})
+    return style_conditions
 
 app.layout = html.Div([
     html.H1("2025小地盃比賽查詢系統"),
@@ -38,7 +52,7 @@ app.layout = html.Div([
         ],
         data=df.to_dict('records'),
         page_size=10,
-        style_data_conditional=[]
+        style_data_conditional=get_winner_styles(df)
     )
 ])
 
@@ -55,10 +69,10 @@ app.layout = html.Div([
 def update_table(search_clicks, reset_clicks, time_filter, location_filter, group_filter, keyword_filter):
     ctx = dash.callback_context
     if not ctx.triggered or ctx.triggered[0]['prop_id'].split('.')[0] == 'reset-button':
-        return df.to_dict('records'), []
+        return df.to_dict('records'), get_winner_styles(df)
     
     filtered_df = df.copy()
-    style_conditions = []
+    style_conditions = get_winner_styles(filtered_df)
     
     if time_filter:
         filtered_df = filtered_df[filtered_df['開始時間'].astype(str).str.contains(time_filter, case=False, na=False)]
@@ -72,14 +86,12 @@ def update_table(search_clicks, reset_clicks, time_filter, location_filter, grou
             filtered_df['選手2'].astype(str).str.contains(keyword_filter, case=False, na=False) |
             filtered_df['裁判'].astype(str).str.contains(keyword_filter, case=False, na=False)
         ]
-        # 設定醒目的顏色標示搜尋到的特定格子
-        style_conditions = []
+        # 先標示搜尋結果為黃色，並確保綠色勝方標示不會被覆蓋
         for col in ['選手1', '選手2', '裁判']:
-            style_conditions.append(
+            style_conditions.insert(0,  # 確保綠色的優先級高於黃色
                 {'if': {'column_id': col, 'filter_query': f'{{{col}}} contains "{keyword_filter}"'}, 'backgroundColor': '#FFDD57', 'color': 'black'}
             )
-    
     return filtered_df.to_dict('records'), style_conditions
 
 if __name__ == '__main__':
-    app.run_server(debug=True,port = 10000)
+    app.run_server(debug=True, port=10000)
